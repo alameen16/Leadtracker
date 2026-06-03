@@ -1,0 +1,114 @@
+<app-navbar title="Dashboard" [subtitle]="'Welcome back, ' + (authService.currentUser()?.name || '')">
+  <a routerLink="/leads/new" class="flex items-center gap-2 bg-violet-600 text-white px-4 py-2 rounded-lg text-[13px] font-semibold hover:bg-violet-500 transition cursor-pointer no-underline shadow-[0_0_16px_rgba(124,92,252,0.3)]">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Add Lead
+  </a>
+</app-navbar>
+
+<div class="p-8 overflow-y-auto">
+
+  <div *ngIf="loading()" class="flex items-center justify-center py-20 text-white/30 text-sm">Loading...</div>
+
+  <div *ngIf="!loading() && summary()">
+
+    <!-- Metrics -->
+    <div class="grid grid-cols-4 gap-4 mb-6">
+      <div class="rounded-xl p-5 bg-gradient-to-br from-[#4c35a4] to-violet-600 border border-violet-500/40 relative overflow-hidden">
+        <div class="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center mb-4">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <p class="text-[11px] text-white/60 uppercase tracking-widest mb-1">Total Leads</p>
+        <p class="text-3xl font-semibold text-white">{{ summary()!.totalLeads }}</p>
+        <p class="text-[11px] text-white/40 mt-1">All time</p>
+      </div>
+      <div class="rounded-xl p-5 bg-gradient-to-br from-[#065f46] to-emerald-600 border border-emerald-500/40 relative overflow-hidden">
+        <div class="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center mb-4">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        </div>
+        <p class="text-[11px] text-white/60 uppercase tracking-widest mb-1">Won Leads</p>
+        <p class="text-3xl font-semibold text-white">{{ getStatusCount('Won') }}</p>
+        <p class="text-[11px] text-white/40 mt-1">Converted</p>
+      </div>
+      <div class="rounded-xl p-5 bg-gradient-to-br from-[#78350f] to-amber-600 border border-amber-500/40 relative overflow-hidden">
+        <div class="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center mb-4">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <p class="text-[11px] text-white/60 uppercase tracking-widest mb-1">Pipeline Value</p>
+        <p class="text-3xl font-semibold text-white">{{ formatCurrency(summary()!.pipelineValue) }}</p>
+        <p class="text-[11px] text-white/40 mt-1">Active deals</p>
+      </div>
+      <div class="rounded-xl p-5 bg-gradient-to-br from-[#1e3a8a] to-blue-600 border border-blue-500/40 relative overflow-hidden">
+        <div class="w-9 h-9 rounded-lg bg-white/15 flex items-center justify-center mb-4">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <p class="text-[11px] text-white/60 uppercase tracking-widest mb-1">Contacts</p>
+        <p class="text-3xl font-semibold text-white">{{ summary()!.totalContacts }}</p>
+        <p class="text-[11px] text-white/40 mt-1">In database</p>
+      </div>
+    </div>
+
+    <!-- Pipeline + Recent -->
+    <div class="grid grid-cols-2 gap-5 mb-5">
+      <div class="bg-[#13131a] border border-white/[0.07] rounded-xl p-5">
+        <p class="text-[11px] font-medium text-white/30 uppercase tracking-widest mb-5">Pipeline Stages</p>
+        <div class="flex flex-col gap-4">
+          <div *ngFor="let s of ['New','Contacted','Qualified','Won','Lost']">
+            <div class="flex justify-between text-[12px] mb-1.5">
+              <span class="text-white/50">{{ s }}</span>
+              <span class="font-semibold text-white font-mono">{{ getStatusCount(s) }}</span>
+            </div>
+            <div class="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+              <div class="h-full rounded-full transition-all duration-700"
+                [style.width]="getPipelinePercent(s) + '%'"
+                [class]="s === 'New' ? 'bg-blue-500' : s === 'Contacted' ? 'bg-amber-500' : s === 'Qualified' ? 'bg-violet-500' : s === 'Won' ? 'bg-emerald-500' : 'bg-red-500'">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-[#13131a] border border-white/[0.07] rounded-xl p-5">
+        <div class="flex items-center justify-between mb-5">
+          <p class="text-[11px] font-medium text-white/30 uppercase tracking-widest">Recent Leads</p>
+          <a routerLink="/leads" class="text-[12px] text-violet-400 hover:text-violet-300 no-underline">View all →</a>
+        </div>
+        <div class="flex flex-col gap-1">
+          <div *ngFor="let lead of recentLeads()" class="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-white/[0.03] transition">
+            <div class="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold text-white flex-shrink-0" [style.background]="getAvatarColor(lead.fullName)">
+              {{ getInitials(lead.fullName) }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-[13px] font-medium text-white truncate">{{ lead.fullName }}</p>
+              <p class="text-[11px] text-white/30">{{ lead.source }}</p>
+            </div>
+            <span class="text-[10px] font-medium px-2.5 py-1 rounded-full"
+              [class]="lead.status === 'New' ? 'bg-blue-500/10 text-blue-400' : lead.status === 'Contacted' ? 'bg-amber-500/10 text-amber-400' : lead.status === 'Qualified' ? 'bg-violet-500/10 text-violet-400' : lead.status === 'Won' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'">
+              {{ lead.status }}
+            </span>
+          </div>
+          <div *ngIf="recentLeads().length === 0" class="text-center py-8">
+            <p class="text-[13px] text-white/30">No leads yet</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leads by Source -->
+    <div class="bg-[#13131a] border border-white/[0.07] rounded-xl p-5">
+      <p class="text-[11px] font-medium text-white/30 uppercase tracking-widest mb-5">Leads by Source</p>
+      <div class="flex items-end gap-4 h-24">
+        <div *ngFor="let src of summary()!.leadsBySource" class="flex flex-col items-center gap-1.5 flex-1">
+          <div class="w-full rounded-md overflow-hidden flex items-end" style="height:72px;background:rgba(255,255,255,0.04);">
+            <div class="w-full rounded-md bg-violet-500 transition-all duration-700"
+              [style.height]="summary()!.totalLeads > 0 ? (src.count / summary()!.totalLeads * 100) + '%' : '4px'"
+              style="min-height:4px;"></div>
+          </div>
+          <p class="text-[11px] font-mono font-medium text-white">{{ src.count }}</p>
+          <p class="text-[10px] text-white/30 text-center">{{ src._id }}</p>
+        </div>
+        <div *ngIf="summary()!.leadsBySource.length === 0" class="flex-1 text-center text-white/20 text-[13px]">No data yet</div>
+      </div>
+    </div>
+
+  </div>
+</div>

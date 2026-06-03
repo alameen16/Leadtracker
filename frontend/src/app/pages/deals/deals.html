@@ -1,0 +1,63 @@
+<app-navbar title="Deals" [subtitle]="formatCurrency(getTotalValue()) + ' total pipeline'">
+  <button class="flex items-center gap-2 bg-violet-600 text-white px-4 py-2 rounded-lg text-[13px] font-semibold hover:bg-violet-500 transition cursor-pointer border-none" (click)="showForm.set(!showForm())">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    New Deal
+  </button>
+</app-navbar>
+
+<div class="p-8">
+
+  <div *ngIf="showForm()" class="bg-[#13131a] border border-white/[0.07] rounded-xl p-6 mb-6 max-w-xl">
+    <p class="text-[12px] font-semibold text-white mb-4">New Deal</p>
+    <div *ngIf="error()" class="bg-red-500/10 border border-red-500/20 text-red-400 text-[13px] px-4 py-3 rounded-lg mb-4">{{ error() }}</div>
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <div class="col-span-2"><label class="block text-[11px] text-white/30 uppercase tracking-widest mb-1.5">Title *</label><input [value]="newDeal().title" (input)="updateDealField('title', $any($event.target).value)" class="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-[13px] text-white placeholder-white/20 outline-none focus:border-violet-500 transition" placeholder="Deal title" /></div>
+      <div><label class="block text-[11px] text-white/30 uppercase tracking-widest mb-1.5">Value (₦) *</label><input type="number" [value]="newDeal().value" (input)="updateDealField('value', +$any($event.target).value)" class="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-[13px] text-white placeholder-white/20 outline-none focus:border-violet-500 transition" placeholder="0" /></div>
+      <div><label class="block text-[11px] text-white/30 uppercase tracking-widest mb-1.5">Probability %</label><input type="number" [value]="newDeal().probability" (input)="updateDealField('probability', +$any($event.target).value)" class="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-[13px] text-white placeholder-white/20 outline-none focus:border-violet-500 transition" /></div>
+      <div><label class="block text-[11px] text-white/30 uppercase tracking-widest mb-1.5">Stage</label>
+        <select [value]="newDeal().stage" (change)="updateDealField('stage', $any($event.target).value)" class="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-[13px] text-white outline-none focus:border-violet-500 transition">
+          <option *ngFor="let s of stages" [value]="s" class="bg-[#1a1a24]">{{ s }}</option>
+        </select>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button class="bg-transparent border border-white/[0.1] text-white/50 hover:text-white px-4 py-2 rounded-lg text-[13px] font-medium transition cursor-pointer" (click)="showForm.set(false)">Cancel</button>
+      <button class="bg-violet-600 text-white px-4 py-2 rounded-lg text-[13px] font-semibold hover:bg-violet-500 transition cursor-pointer disabled:opacity-50 border-none" (click)="saveDeal()" [disabled]="saving()">{{ saving() ? 'Saving...' : 'Save Deal' }}</button>
+    </div>
+  </div>
+
+  <div *ngIf="loading()" class="flex items-center justify-center py-20 text-white/30 text-sm">Loading...</div>
+
+  <div *ngIf="!loading()" class="grid grid-cols-5 gap-4">
+    <div *ngFor="let stage of stages" class="flex flex-col gap-3">
+      <div class="flex items-center justify-between mb-1">
+        <p class="text-[11px] font-medium text-white/30 uppercase tracking-widest">{{ stage }}</p>
+        <span class="text-[11px] font-mono text-white/30 bg-white/[0.06] px-2 py-0.5 rounded-full">{{ getDealsForStage(stage).length }}</span>
+      </div>
+      <div *ngFor="let deal of getDealsForStage(stage)"
+        class="bg-[#13131a] border border-white/[0.07] hover:border-white/[0.12] rounded-xl p-4 transition cursor-pointer"
+        (click)="viewDeal(deal._id)">
+        <div class="flex items-start justify-between mb-3">
+          <p class="text-[13px] font-medium text-white leading-snug flex-1 mr-2">{{ deal.title }}</p>
+          <button *ngIf="roleService.canDeleteDeal"
+            (click)="deleteDeal(deal._id, $event)"
+            class="p-1 rounded bg-transparent border-none text-white/15 hover:text-red-400 hover:bg-red-400/10 transition cursor-pointer shrink-0">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+          </button>
+        </div>
+        <p class="text-[15px] font-semibold text-violet-400 font-mono mb-3">{{ formatCurrency(deal.value) }}</p>
+        <div class="mb-2">
+          <div class="flex justify-between text-[10px] text-white/25 mb-1"><span>Probability</span><span>{{ deal.probability }}%</span></div>
+          <div class="h-1 bg-white/[0.06] rounded-full overflow-hidden">
+            <div class="h-full rounded-full bg-violet-500" [style.width]="deal.probability + '%'"></div>
+          </div>
+        </div>
+        <p *ngIf="deal.assignedTo" class="text-[11px] text-white/25">{{ deal.assignedTo.name }}</p>
+      </div>
+      <div *ngIf="getDealsForStage(stage).length === 0" class="border border-dashed border-white/[0.06] rounded-xl p-4 flex items-center justify-center">
+        <p class="text-[12px] text-white/15">No deals</p>
+      </div>
+    </div>
+  </div>
+
+</div>

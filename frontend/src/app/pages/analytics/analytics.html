@@ -1,0 +1,120 @@
+<app-navbar title="Analytics" subtitle="Performance overview"></app-navbar>
+
+<div class="p-8">
+  <div *ngIf="loading()" class="flex items-center justify-center py-20 text-white/30 text-sm">Loading...</div>
+
+  <div *ngIf="!loading() && summary()">
+
+    <div class="grid grid-cols-4 gap-4 mb-6">
+      <div class="bg-[#13131a] border border-white/[0.07] rounded-xl p-5">
+        <p class="text-[11px] font-medium text-white/25 uppercase tracking-widest mb-3">Total Leads</p>
+        <p class="text-3xl font-semibold text-white font-mono">{{ summary()!.totalLeads }}</p>
+        <p class="text-[12px] text-white/25 mt-2">All time</p>
+      </div>
+      <div class="bg-[#13131a] border border-white/[0.07] rounded-xl p-5">
+        <p class="text-[11px] font-medium text-white/25 uppercase tracking-widest mb-3">Conversion Rate</p>
+        <p class="text-3xl font-semibold text-emerald-400 font-mono">{{ getConversionRate() }}%</p>
+        <p class="text-[12px] text-white/25 mt-2">Leads to won</p>
+      </div>
+      <div class="bg-[#13131a] border border-white/[0.07] rounded-xl p-5">
+        <p class="text-[11px] font-medium text-white/25 uppercase tracking-widest mb-3">Revenue Won</p>
+        <p class="text-3xl font-semibold text-violet-400 font-mono">{{ formatCurrency(summary()!.totalRevenue) }}</p>
+        <p class="text-[12px] text-white/25 mt-2">Closed deals</p>
+      </div>
+      <div class="bg-[#13131a] border border-white/[0.07] rounded-xl p-5">
+        <p class="text-[11px] font-medium text-white/25 uppercase tracking-widest mb-3">Pipeline Value</p>
+        <p class="text-3xl font-semibold text-amber-400 font-mono">{{ formatCurrency(summary()!.pipelineValue) }}</p>
+        <p class="text-[12px] text-white/25 mt-2">Active deals</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-5 mb-5">
+
+      <div class="bg-[#13131a] border border-white/[0.07] rounded-xl p-5">
+        <p class="text-[11px] font-medium text-white/30 uppercase tracking-widest mb-5">Lead Pipeline</p>
+        <div class="flex flex-col gap-4">
+          <div *ngFor="let s of ['New','Contacted','Qualified','Won','Lost']">
+            <div class="flex justify-between text-[12px] mb-1.5">
+              <span class="text-white/50">{{ s }}</span>
+              <div class="flex items-center gap-2">
+                <span class="font-semibold text-white font-mono">{{ getStatusCount(s) }}</span>
+                <span class="text-white/25 text-[11px]">{{ summary()!.totalLeads > 0 ? (getStatusCount(s) / summary()!.totalLeads * 100 | number:'1.0-0') : 0 }}%</span>
+              </div>
+            </div>
+            <div class="h-1.5 bg-white/[0.05] rounded-full overflow-hidden">
+              <div class="h-full rounded-full transition-all duration-700"
+                [style.width]="summary()!.totalLeads > 0 ? (getStatusCount(s) / summary()!.totalLeads * 100) + '%' : '0%'"
+                [class]="s === 'New' ? 'bg-blue-500' : s === 'Contacted' ? 'bg-amber-500' : s === 'Qualified' ? 'bg-violet-500' : s === 'Won' ? 'bg-emerald-500' : 'bg-red-500'">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-[#13131a] border border-white/[0.07] rounded-xl p-5">
+        <p class="text-[11px] font-medium text-white/30 uppercase tracking-widest mb-5">Leads by Source</p>
+        <div class="flex flex-col gap-3">
+          <div *ngFor="let src of summary()!.leadsBySource" class="flex items-center gap-3">
+            <span class="text-[12px] text-white/50 w-20 flex-shrink-0">{{ src._id }}</span>
+            <div class="flex-1 h-1.5 bg-white/[0.05] rounded-full overflow-hidden">
+              <div class="h-full bg-violet-500 rounded-full transition-all duration-700" [style.width]="getSourcePercent(src.count) + '%'"></div>
+            </div>
+            <div class="flex items-center gap-1.5 flex-shrink-0">
+              <span class="text-[12px] font-semibold text-white font-mono">{{ src.count }}</span>
+              <span class="text-[11px] text-white/25">{{ getSourcePercent(src.count) }}%</span>
+            </div>
+          </div>
+          <div *ngIf="summary()!.leadsBySource.length === 0" class="text-center py-6">
+            <p class="text-[13px] text-white/25">No data yet</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="grid grid-cols-3 gap-4">
+      <div class="bg-[#13131a] border border-white/[0.07] rounded-xl p-5">
+        <p class="text-[11px] font-medium text-white/25 uppercase tracking-widest mb-4">Team Stats</p>
+        <div class="flex flex-col gap-3">
+          <div class="flex justify-between items-center"><span class="text-[13px] text-white/50">Total Users</span><span class="text-[13px] font-semibold text-white font-mono">{{ summary()!.totalUsers }}</span></div>
+          <div class="flex justify-between items-center"><span class="text-[13px] text-white/50">Total Deals</span><span class="text-[13px] font-semibold text-white font-mono">{{ summary()!.totalDeals }}</span></div>
+          <div class="flex justify-between items-center"><span class="text-[13px] text-white/50">Contacts</span><span class="text-[13px] font-semibold text-white font-mono">{{ summary()!.totalContacts }}</span></div>
+        </div>
+      </div>
+      <div class="bg-[#13131a] border border-white/[0.07] rounded-xl p-5">
+        <p class="text-[11px] font-medium text-white/25 uppercase tracking-widest mb-4">Won vs Lost</p>
+        <div class="flex items-end gap-3 h-16">
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full rounded-md overflow-hidden flex items-end" style="height:52px;background:rgba(255,255,255,0.04)">
+              <div class="w-full rounded-md bg-emerald-500" [style.height]="summary()!.totalLeads > 0 ? (getStatusCount('Won') / summary()!.totalLeads * 100) + '%' : '4px'" style="min-height:4px;"></div>
+            </div>
+            <p class="text-[11px] text-emerald-400 font-mono">{{ getStatusCount('Won') }}</p>
+            <p class="text-[10px] text-white/25">Won</p>
+          </div>
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full rounded-md overflow-hidden flex items-end" style="height:52px;background:rgba(255,255,255,0.04)">
+              <div class="w-full rounded-md bg-red-500" [style.height]="summary()!.totalLeads > 0 ? (getStatusCount('Lost') / summary()!.totalLeads * 100) + '%' : '4px'" style="min-height:4px;"></div>
+            </div>
+            <p class="text-[11px] text-red-400 font-mono">{{ getStatusCount('Lost') }}</p>
+            <p class="text-[10px] text-white/25">Lost</p>
+          </div>
+          <div class="flex flex-col items-center gap-1 flex-1">
+            <div class="w-full rounded-md overflow-hidden flex items-end" style="height:52px;background:rgba(255,255,255,0.04)">
+              <div class="w-full rounded-md bg-blue-500" [style.height]="summary()!.totalLeads > 0 ? (getStatusCount('New') / summary()!.totalLeads * 100) + '%' : '4px'" style="min-height:4px;"></div>
+            </div>
+            <p class="text-[11px] text-blue-400 font-mono">{{ getStatusCount('New') }}</p>
+            <p class="text-[10px] text-white/25">New</p>
+          </div>
+        </div>
+      </div>
+      <div class="bg-[#13131a] border border-white/[0.07] rounded-xl p-5">
+        <p class="text-[11px] font-medium text-white/25 uppercase tracking-widest mb-4">Revenue</p>
+        <div class="flex flex-col gap-3">
+          <div><p class="text-[11px] text-white/25 mb-1">Won Revenue</p><p class="text-xl font-semibold text-emerald-400 font-mono">{{ formatCurrency(summary()!.totalRevenue) }}</p></div>
+          <div class="border-t border-white/[0.05] pt-3"><p class="text-[11px] text-white/25 mb-1">Pipeline Value</p><p class="text-xl font-semibold text-violet-400 font-mono">{{ formatCurrency(summary()!.pipelineValue) }}</p></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

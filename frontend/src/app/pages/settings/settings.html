@@ -1,0 +1,164 @@
+<app-navbar title="Settings" subtitle="Manage your account and preferences"></app-navbar>
+
+<div class="p-8 flex gap-6">
+
+  <!-- Settings Nav -->
+  <div class="w-44 flex-shrink-0">
+    <div class="flex flex-col gap-0.5">
+      <button *ngFor="let tab of tabs" (click)="activeTab = tab"
+        class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-medium text-left cursor-pointer border-none transition-all w-full capitalize"
+        [class]="activeTab === tab ? 'bg-violet-500/10 text-violet-400' : 'bg-transparent text-white/35 hover:bg-white/[0.04] hover:text-white/60'">
+        {{ tab }}
+      </button>
+      <div class="mt-4 pt-4 border-t border-white/[0.06]">
+        <button (click)="logout()"
+          class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-medium text-left cursor-pointer border-none transition-all w-full text-red-400/60 hover:bg-red-500/10 hover:text-red-400">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="flex-1 max-w-xl">
+
+    <!-- Profile Tab -->
+    <div *ngIf="activeTab === 'profile'">
+      <div class="bg-[#13131a] border border-white/[0.07] rounded-xl p-6 mb-4">
+        <p class="text-[12px] font-semibold text-white mb-5 pb-4 border-b border-white/[0.06]">Profile Information</p>
+        <div class="flex items-center gap-4 mb-6">
+          <div class="w-14 h-14 rounded-full flex items-center justify-center text-lg font-semibold text-white" [style.background]="getAvatarColor(profile.name)">
+            {{ getInitials(profile.name) }}
+          </div>
+          <div>
+            <p class="text-[14px] font-semibold text-white">{{ profile.name }}</p>
+            <p class="text-[12px] text-white/30 mt-0.5 capitalize">{{ authService.currentUser()?.role }}</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-[11px] font-medium text-white/30 uppercase tracking-widest mb-2">Full Name</label>
+            <input type="text" [(ngModel)]="profile.name" class="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2.5 text-[13px] text-white placeholder-white/20 outline-none focus:border-violet-500 transition" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-white/30 uppercase tracking-widest mb-2">Email</label>
+            <input type="email" [(ngModel)]="profile.email" class="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2.5 text-[13px] text-white placeholder-white/20 outline-none focus:border-violet-500 transition" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-white/30 uppercase tracking-widest mb-2">Phone</label>
+            <input type="text" [(ngModel)]="profile.phone" placeholder="+234 800 000 0000" class="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2.5 text-[13px] text-white placeholder-white/20 outline-none focus:border-violet-500 transition" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-white/30 uppercase tracking-widest mb-2">Role</label>
+            <div class="w-full bg-white/[0.02] border border-white/[0.05] rounded-lg px-4 py-2.5 text-[13px] text-white/30 capitalize">{{ authService.currentUser()?.role }}</div>
+          </div>
+        </div>
+        <button class="mt-5 bg-violet-600 text-white px-5 py-2.5 rounded-lg text-[13px] font-semibold hover:bg-violet-500 transition cursor-pointer border-none">
+          Save Changes
+        </button>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="bg-[#13131a] border border-red-500/20 rounded-xl p-6">
+        <p class="text-[12px] font-semibold text-red-400 mb-4 pb-3 border-b border-red-500/10">Danger Zone</p>
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-[13px] font-medium text-white">Delete account</p>
+            <p class="text-[12px] text-white/30 mt-0.5">Permanently delete your account and all data</p>
+          </div>
+          <button class="bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 px-4 py-2 rounded-lg text-[13px] font-medium transition cursor-pointer">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notifications Tab -->
+    <div *ngIf="activeTab === 'notifications'">
+      <div class="bg-[#13131a] border border-white/[0.07] rounded-xl p-6">
+        <p class="text-[12px] font-semibold text-white mb-5 pb-4 border-b border-white/[0.06]">Notification Preferences</p>
+        <div class="flex flex-col gap-0">
+
+          <div class="flex items-center justify-between py-4 border-b border-white/[0.05]">
+            <div>
+              <p class="text-[13px] font-medium text-white">Email notifications</p>
+              <p class="text-[12px] text-white/30 mt-0.5">Receive email alerts for new leads</p>
+            </div>
+            <div (click)="notifications.emailAlerts = !notifications.emailAlerts"
+              class="w-9 h-5 rounded-full cursor-pointer transition-all relative"
+              [class]="notifications.emailAlerts ? 'bg-violet-600' : 'bg-white/[0.1]'">
+              <div class="w-3.5 h-3.5 rounded-full bg-white absolute top-[3px] transition-all"
+                [class]="notifications.emailAlerts ? 'left-[18px]' : 'left-[3px]'"></div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between py-4 border-b border-white/[0.05]">
+            <div>
+              <p class="text-[13px] font-medium text-white">Lead assignment alerts</p>
+              <p class="text-[12px] text-white/30 mt-0.5">Notify when a lead is assigned to you</p>
+            </div>
+            <div (click)="notifications.leadAssignment = !notifications.leadAssignment"
+              class="w-9 h-5 rounded-full cursor-pointer transition-all relative"
+              [class]="notifications.leadAssignment ? 'bg-violet-600' : 'bg-white/[0.1]'">
+              <div class="w-3.5 h-3.5 rounded-full bg-white absolute top-[3px] transition-all"
+                [class]="notifications.leadAssignment ? 'left-[18px]' : 'left-[3px]'"></div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between py-4 border-b border-white/[0.05]">
+            <div>
+              <p class="text-[13px] font-medium text-white">Follow-up reminders</p>
+              <p class="text-[12px] text-white/30 mt-0.5">Daily digest of pending follow-ups</p>
+            </div>
+            <div (click)="notifications.followUpReminders = !notifications.followUpReminders"
+              class="w-9 h-5 rounded-full cursor-pointer transition-all relative"
+              [class]="notifications.followUpReminders ? 'bg-violet-600' : 'bg-white/[0.1]'">
+              <div class="w-3.5 h-3.5 rounded-full bg-white absolute top-[3px] transition-all"
+                [class]="notifications.followUpReminders ? 'left-[18px]' : 'left-[3px]'"></div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between py-4">
+            <div>
+              <p class="text-[13px] font-medium text-white">Deal updates</p>
+              <p class="text-[12px] text-white/30 mt-0.5">Notify on deal stage changes</p>
+            </div>
+            <div (click)="notifications.dealUpdates = !notifications.dealUpdates"
+              class="w-9 h-5 rounded-full cursor-pointer transition-all relative"
+              [class]="notifications.dealUpdates ? 'bg-violet-600' : 'bg-white/[0.1]'">
+              <div class="w-3.5 h-3.5 rounded-full bg-white absolute top-[3px] transition-all"
+                [class]="notifications.dealUpdates ? 'left-[18px]' : 'left-[3px]'"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Tab -->
+    <div *ngIf="activeTab === 'security'">
+      <div class="bg-[#13131a] border border-white/[0.07] rounded-xl p-6">
+        <p class="text-[12px] font-semibold text-white mb-5 pb-4 border-b border-white/[0.06]">Change Password</p>
+        <div class="flex flex-col gap-4">
+          <div>
+            <label class="block text-[11px] font-medium text-white/30 uppercase tracking-widest mb-2">Current Password</label>
+            <input type="password" placeholder="••••••••" class="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2.5 text-[13px] text-white placeholder-white/20 outline-none focus:border-violet-500 transition" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-white/30 uppercase tracking-widest mb-2">New Password</label>
+            <input type="password" placeholder="••••••••" class="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2.5 text-[13px] text-white placeholder-white/20 outline-none focus:border-violet-500 transition" />
+          </div>
+          <div>
+            <label class="block text-[11px] font-medium text-white/30 uppercase tracking-widest mb-2">Confirm New Password</label>
+            <input type="password" placeholder="••••••••" class="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2.5 text-[13px] text-white placeholder-white/20 outline-none focus:border-violet-500 transition" />
+          </div>
+          <button class="bg-violet-600 text-white px-5 py-2.5 rounded-lg text-[13px] font-semibold hover:bg-violet-500 transition cursor-pointer border-none w-fit mt-2">
+            Update Password
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

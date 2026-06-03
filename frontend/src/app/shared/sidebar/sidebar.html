@@ -1,0 +1,58 @@
+<aside class="fixed top-0 left-0 h-screen w-[220px] bg-[#13131a] border-r border-white/[0.07] flex flex-col z-50">
+
+  <!-- Logo -->
+  <div class="px-5 py-5 border-b border-white/[0.07] flex items-center gap-3">
+    <div class="w-7 h-7 rounded-lg bg-violet-600 flex items-center justify-center text-white text-sm shadow-[0_0_12px_rgba(124,92,252,0.5)]">⬡</div>
+    <span class="text-[15px] font-semibold text-white tracking-tight">LeadTracker</span>
+  </div>
+
+  <!-- Nav -->
+  <nav class="flex-1 px-2.5 py-3 flex flex-col gap-0.5 overflow-y-auto">
+    <a routerLink="/dashboard" routerLinkActive="!text-violet-400 !bg-violet-500/10" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-[450] text-white/35 hover:text-white/70 hover:bg-white/[0.04] transition-all no-underline">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <a routerLink="/leads" routerLinkActive="!text-violet-400 !bg-violet-500/10" [routerLinkActiveOptions]="{exact: false}" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-[450] text-white/35 hover:text-white/70 hover:bg-white/[0.04] transition-all no-underline">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Leads
+    </a>
+    <a routerLink="/contacts" routerLinkActive="!text-violet-400 !bg-violet-500/10" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-[450] text-white/35 hover:text-white/70 hover:bg-white/[0.04] transition-all no-underline">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Contacts
+    </a>
+    <a routerLink="/deals" routerLinkActive="!text-violet-400 !bg-violet-500/10" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-[450] text-white/35 hover:text-white/70 hover:bg-white/[0.04] transition-all no-underline">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="6" height="18"/><rect x="9" y="8" width="6" height="13"/><rect x="16" y="13" width="6" height="8"/></svg>
+      Deals
+    </a>
+    <a routerLink="/analytics" routerLinkActive="!text-violet-400 !bg-violet-500/10" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-[450] text-white/35 hover:text-white/70 hover:bg-white/[0.04] transition-all no-underline">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Analytics
+    </a>
+  </nav>
+
+  <!-- Bottom -->
+  <div class="px-2.5 pb-3 border-t border-white/[0.07] pt-2.5 flex flex-col gap-0.5">
+    <a routerLink="/settings" routerLinkActive="!text-violet-400 !bg-violet-500/10" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-[450] text-white/35 hover:text-white/70 hover:bg-white/[0.04] transition-all no-underline">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </a>
+
+    <!-- Role badge -->
+    <div *ngIf="user" class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg mt-1">
+      <div class="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold text-white shrink-0" [style.background]="getAvatarColor(user.name)">
+        {{ getInitials(user.name) }}
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-[12px] font-medium text-white/80 truncate">{{ user.name }}</p>
+        <p class="text-[10px] capitalize px-1.5 py-0.5 rounded-full inline-block mt-0.5"
+          [class]="user.role === 'admin' ? 'bg-violet-500/20 text-violet-400' : user.role === 'manager' ? 'bg-amber-500/20 text-amber-400' : 'bg-white/10 text-white/30'">
+          {{ user.role }}
+        </p>
+      </div>
+      <button (click)="logout()" title="Logout" class="p-1 rounded text-white/25 hover:text-red-400 hover:bg-red-400/10 transition-all cursor-pointer border-none bg-transparent">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+
+</aside>

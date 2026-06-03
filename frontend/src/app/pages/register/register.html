@@ -1,0 +1,55 @@
+<div class="min-h-screen flex items-center justify-center bg-[#0f0f13] p-8">
+  <div class="w-full max-w-sm">
+
+    <div class="flex items-center gap-3 mb-8">
+      <div class="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center text-white shadow-[0_0_16px_rgba(124,92,252,0.5)]">⬡</div>
+      <span class="text-lg font-semibold text-white">LeadTracker</span>
+    </div>
+
+    <h1 class="text-2xl font-semibold text-white mb-1">Create account</h1>
+    <p class="text-sm text-white/40 mb-8">Start tracking your leads today</p>
+
+    <div *ngIf="error" class="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-lg mb-5">
+      {{ error }}
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-[11px] font-medium text-white/40 uppercase tracking-widest mb-2">Full Name</label>
+      <input type="text" [(ngModel)]="payload.name" placeholder="Folarin Ameen"
+        class="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-3 text-[13px] text-white placeholder-white/20 outline-none focus:border-violet-500 transition" />
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-[11px] font-medium text-white/40 uppercase tracking-widest mb-2">Email</label>
+      <input type="email" [(ngModel)]="payload.email" placeholder="you@company.com"
+        class="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-3 text-[13px] text-white placeholder-white/20 outline-none focus:border-violet-500 transition" />
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-[11px] font-medium text-white/40 uppercase tracking-widest mb-2">Password</label>
+      <input type="password" [(ngModel)]="payload.password" placeholder="••••••••"
+        class="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-3 text-[13px] text-white placeholder-white/20 outline-none focus:border-violet-500 transition" />
+    </div>
+
+    <div class="mb-8">
+      <label class="block text-[11px] font-medium text-white/40 uppercase tracking-widest mb-2">Role</label>
+      <select [(ngModel)]="payload.role"
+        class="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-3 text-[13px] text-white outline-none focus:border-violet-500 transition">
+        <option value="rep" class="bg-[#1a1a24]">Sales Rep</option>
+        <option value="manager" class="bg-[#1a1a24]">Manager</option>
+        <option value="admin" class="bg-[#1a1a24]">Admin</option>
+      </select>
+    </div>
+
+    <button (click)="onSubmit()" [disabled]="loading"
+      class="w-full bg-violet-600 text-white py-3 rounded-lg text-[13px] font-semibold hover:bg-violet-500 transition cursor-pointer disabled:opacity-50 border-none shadow-[0_0_20px_rgba(124,92,252,0.3)]">
+      {{ loading ? 'Creating account...' : 'Create account →' }}
+    </button>
+
+    <p class="text-center text-[13px] text-white/30 mt-6">
+      Already have an account?
+      <a routerLink="/login" class="text-violet-400 hover:text-violet-300 font-medium">Sign in</a>
+    </p>
+
+  </div>
+</div>

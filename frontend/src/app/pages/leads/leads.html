@@ -1,0 +1,77 @@
+<app-navbar title="Leads" [subtitle]="total() + ' total leads'">
+  <div class="flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" [value]="searchQuery()" (input)="onSearch($any($event.target).value)" placeholder="Search leads..."
+      class="bg-transparent text-[13px] text-white placeholder-white/20 outline-none w-48" />
+  </div>
+  <!-- All roles can add leads -->
+  <button class="flex items-center gap-2 bg-violet-600 text-white px-4 py-2 rounded-lg text-[13px] font-semibold hover:bg-violet-500 transition cursor-pointer border-none" (click)="addLead()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Add Lead
+  </button>
+</app-navbar>
+
+<div class="p-8">
+  <div class="flex gap-2 flex-wrap mb-6">
+    <button *ngFor="let s of statuses" (click)="filterBy(s)"
+      class="px-4 py-1.5 rounded-full text-[12px] font-medium cursor-pointer border transition-all"
+      [class]="selectedStatus() === s ? 'bg-violet-600 text-white border-violet-600' : 'bg-transparent text-white/40 border-white/[0.1] hover:border-violet-500/50 hover:text-white/70'">
+      {{ s }}
+    </button>
+  </div>
+
+  <div *ngIf="loading()" class="flex items-center justify-center py-20 text-white/30 text-sm">Loading leads...</div>
+
+  <div *ngIf="!loading() && leads().length === 0" class="flex flex-col items-center justify-center py-20 text-center">
+    <p class="text-[15px] font-medium text-white/40">No leads found</p>
+    <p class="text-[13px] text-white/20 mt-1">{{ selectedStatus() !== 'All' ? 'Try a different filter' : 'Add your first lead to get started' }}</p>
+  </div>
+
+  <div *ngIf="!loading() && leads().length > 0" class="rounded-xl border border-white/[0.07] overflow-hidden">
+    <table class="w-full border-collapse">
+      <thead>
+        <tr class="bg-white/[0.03] border-b border-white/[0.07]">
+          <th class="text-left px-5 py-3 text-[11px] font-medium text-white/25 uppercase tracking-widest">Lead</th>
+          <th class="text-left px-5 py-3 text-[11px] font-medium text-white/25 uppercase tracking-widest">Email</th>
+          <th class="text-left px-5 py-3 text-[11px] font-medium text-white/25 uppercase tracking-widest">Source</th>
+          <th class="text-left px-5 py-3 text-[11px] font-medium text-white/25 uppercase tracking-widest">Assigned</th>
+          <th class="text-left px-5 py-3 text-[11px] font-medium text-white/25 uppercase tracking-widest">Score</th>
+          <th class="text-left px-5 py-3 text-[11px] font-medium text-white/25 uppercase tracking-widest">Status</th>
+          <th class="px-5 py-3"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let lead of leads()" (click)="viewLead(lead._id)"
+          class="border-b border-white/[0.04] hover:bg-white/[0.02] transition cursor-pointer">
+          <td class="px-5 py-4">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-semibold text-white shrink-0" [style.background]="getAvatarColor(lead.fullName)">{{ getInitials(lead.fullName) }}</div>
+              <div>
+                <p class="text-[13px] font-medium text-white">{{ lead.fullName }}</p>
+                <p class="text-[11px] text-white/25">{{ lead.company || '—' }}</p>
+              </div>
+            </div>
+          </td>
+          <td class="px-5 py-4 text-[13px] text-white/40">{{ lead.email }}</td>
+          <td class="px-5 py-4 text-[13px] text-white/40">{{ lead.source }}</td>
+          <td class="px-5 py-4 text-[13px] text-white/40">{{ lead.assignedTo?.name || '—' }}</td>
+          <td class="px-5 py-4">
+            <div class="flex items-center gap-2">
+              <div class="w-12 h-1 bg-white/[0.08] rounded-full overflow-hidden">
+                <div class="h-full bg-violet-500 rounded-full" [style.width]="lead.score + '%'"></div>
+              </div>
+              <span class="text-[12px] font-mono text-white/40">{{ lead.score }}</span>
+            </div>
+          </td>
+          <td class="px-5 py-4">
+            <span class="text-[11px] font-medium px-2.5 py-1 rounded-full"
+              [class]="lead.status === 'New' ? 'bg-blue-500/10 text-blue-400' : lead.status === 'Contacted' ? 'bg-amber-500/10 text-amber-400' : lead.status === 'Qualified' ? 'bg-violet-500/10 text-violet-400' : lead.status === 'Won' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'">
+              {{ lead.status }}
+            </span>
+          </td>
+          <td class="px-5 py-4 text-violet-400 text-[13px]">→</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

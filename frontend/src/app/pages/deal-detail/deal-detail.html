@@ -1,0 +1,136 @@
+<app-navbar [title]="deal()?.title || 'Deal Detail'" subtitle="Deal overview">
+  <button class="flex items-center gap-2 bg-transparent border border-white/[0.1] text-white/50 hover:text-white hover:border-white/20 px-4 py-2 rounded-lg text-[13px] font-medium transition cursor-pointer" (click)="goBack()">
+    ← Back
+  </button>
+  <button *ngIf="roleService.canDeleteDeal"
+    class="flex items-center gap-2 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 px-4 py-2 rounded-lg text-[13px] font-medium transition cursor-pointer"
+    (click)="deleteDeal()">
+    Delete
+  </button>
+</app-navbar>
+
+<div class="p-8">
+  <div *ngIf="loading()" class="flex items-center justify-center py-20 text-white/30 text-sm">Loading...</div>
+
+  <div *ngIf="deal() && !loading()" class="grid grid-cols-2 gap-5 items-start">
+
+    <!-- Left Column -->
+    <div class="flex flex-col gap-4">
+
+      <!-- Deal Info -->
+      <div class="bg-[#13131a] border border-white/[0.07] rounded-xl p-5">
+        <div class="flex items-start justify-between mb-5">
+          <div class="flex-1 mr-4">
+            <h2 class="text-[18px] font-semibold text-white leading-snug">{{ deal()!.title }}</h2>
+            <p class="text-[13px] text-white/30 mt-1" *ngIf="deal()!.leadId">
+              Linked lead: <span class="text-violet-400">{{ deal()!.leadId!.fullName }}</span>
+            </p>
+          </div>
+          <span class="text-[11px] font-medium px-3 py-1 rounded-full shrink-0" [class]="getStageColor(deal()!.stage)">
+            {{ deal()!.stage }}
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-[10px] text-white/25 uppercase tracking-widest mb-1">Value</p>
+            <p class="text-[20px] font-semibold text-violet-400 font-mono">{{ formatCurrency(deal()!.value) }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-white/25 uppercase tracking-widest mb-1">Probability</p>
+            <p class="text-[20px] font-semibold text-white font-mono">{{ deal()!.probability }}%</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-white/25 uppercase tracking-widest mb-1">Assigned To</p>
+            <p class="text-[13px] text-white/70">{{ deal()!.assignedTo?.name || '—' }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-white/25 uppercase tracking-widest mb-1">Close Date</p>
+            <p class="text-[13px] text-white/70">{{ deal()!.closeDate ? (deal()!.closeDate | date:'mediumDate') : '—' }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-white/25 uppercase tracking-widest mb-1">Created By</p>
+            <p class="text-[13px] text-white/70">{{ deal()!.createdBy?.name || '—' }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-white/25 uppercase tracking-widest mb-1">Created</p>
+            <p class="text-[13px] text-white/70">{{ deal()!.createdAt | date:'mediumDate' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Probability Bar -->
+      <div class="bg-[#13131a] border border-white/[0.07] rounded-xl p-5">
+        <p class="text-[11px] font-medium text-white/30 uppercase tracking-widest mb-4">Win Probability</p>
+        <div class="flex items-center gap-4">
+          <span class="text-4xl font-semibold text-violet-400 font-mono">{{ deal()!.probability }}%</span>
+          <div class="flex-1">
+            <div class="h-2 bg-white/[0.06] rounded-full overflow-hidden">
+              <div class="h-full rounded-full transition-all duration-700"
+                [style.width]="deal()!.probability + '%'"
+                [class]="deal()!.probability >= 70 ? 'bg-emerald-500' : deal()!.probability >= 40 ? 'bg-violet-500' : 'bg-amber-500'">
+              </div>
+            </div>
+            <p class="text-[11px] text-white/25 mt-2">
+              {{ deal()!.probability >= 70 ? 'High chance of closing' : deal()!.probability >= 40 ? 'Moderate chance' : 'Low chance of closing' }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Update Stage - admin and manager only -->
+      <div *ngIf="roleService.canUpdateDeal" class="bg-[#13131a] border border-white/[0.07] rounded-xl p-5">
+        <p class="text-[11px] font-medium text-white/30 uppercase tracking-widest mb-4">Update Stage</p>
+        <div class="flex gap-2 flex-wrap">
+          <button *ngFor="let s of stages" (click)="updateStage(s)"
+            class="px-3.5 py-1.5 rounded-full text-[12px] font-medium cursor-pointer border transition-all"
+            [class]="deal()!.stage === s ? 'bg-violet-600 text-white border-violet-600' : 'bg-transparent text-white/35 border-white/[0.1] hover:border-violet-500/50 hover:text-white/60'">
+            {{ s }}
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column -->
+    <div class="flex flex-col gap-4">
+
+      <!-- Notes -->
+      <div class="bg-[#13131a] border border-white/[0.07] rounded-xl p-5">
+        <p class="text-[11px] font-medium text-white/30 uppercase tracking-widest mb-4">Notes</p>
+        <textarea
+          [value]="deal()!.notes || ''"
+          (input)="updateNotes($any($event.target).value)"
+          rows="6"
+          placeholder="Add notes about this deal..."
+          class="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-3 text-[13px] text-white placeholder-white/20 outline-none focus:border-violet-500 transition resize-none">
+        </textarea>
+        <button (click)="saveNotes()" [disabled]="saving()"
+          class="mt-3 bg-violet-600 text-white px-4 py-2 rounded-lg text-[13px] font-semibold hover:bg-violet-500 transition cursor-pointer disabled:opacity-50 border-none">
+          {{ saving() ? 'Saving...' : 'Save Notes' }}
+        </button>
+      </div>
+
+      <!-- Pipeline Progress -->
+      <div class="bg-[#13131a] border border-white/[0.07] rounded-xl p-5">
+        <p class="text-[11px] font-medium text-white/30 uppercase tracking-widest mb-4">Pipeline Progress</p>
+        <div class="flex flex-col gap-3">
+          <div *ngFor="let s of stages; let i = index" class="flex items-center gap-3">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-[10px] font-semibold"
+              [class]="deal()!.stage === s ? 'bg-violet-600 text-white' : stages.indexOf(deal()!.stage) > i ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/[0.06] text-white/25'">
+              {{ stages.indexOf(deal()!.stage) > i ? '✓' : i + 1 }}
+            </div>
+            <div class="flex-1">
+              <p class="text-[12px] font-medium"
+                [class]="deal()!.stage === s ? 'text-violet-400' : stages.indexOf(deal()!.stage) > i ? 'text-white/50' : 'text-white/25'">
+                {{ s }}
+              </p>
+            </div>
+            <div *ngIf="deal()!.stage === s" class="w-1.5 h-1.5 rounded-full bg-violet-400"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
